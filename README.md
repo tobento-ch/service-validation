@@ -29,6 +29,7 @@ The Validation Service provides an easy way to validate data.
         - [Custom Rules](#custom-rules)
     - [Rule](#rule)
         - [Rule Interface](#rule-interface)
+        - [Passes Rule](#passes-rule)
         - [Custom Rule](#custom-rule)
     - [Rules Parser](#rules-parser)
         - [Default Rules Parser](#default-rules-parser)
@@ -887,6 +888,93 @@ interface RuleInterface
      */
     public function messages(): array;    
 }
+```
+
+### Passes Rule
+
+With the Passes rule you can create any custom rule.
+
+```php
+use Tobento\Service\Validation\Rule\Passes;
+
+$validation = $validator->validating(
+    value: 'foo',
+    rules: [
+        // rule does pass:
+        new Passes(passes: true),
+        
+        // rule does not pass:
+        new Passes(passes: false),
+        
+        // rule does pass:
+        new Passes(passes: fn (mixed $value): bool => $value === 'foo'),
+        
+        // using static new method:
+        Passes::new(passes: true),
+    ],
+);
+```
+
+**Passes parameters**
+
+The following parameters are available:
+
+```php
+use Tobento\Service\Validation\Rule\Passes;
+use Tobento\Service\Validation\ValidatorInterface;
+use Tobento\Service\Validation\ValidationInterface;
+
+$rule = new Passes(passes: function(
+    mixed $value,
+    array $parameters,
+    ValidatorInterface $validator,
+    ValidationInterface $validation): bool
+{
+    return true;
+});
+```
+
+If you have set up the validator with the [autowiring rule factory](#default-rules), the ```passes``` and ```skipValidation``` callable are autowired:
+
+```php
+use Tobento\Service\Validation\Rule\Passes;
+
+$rule = new Passes(passes: function(mixed $value, SomeService $service): bool {
+    return true;
+});
+```
+
+**Custom error message**
+
+You may specify a custom error message:
+
+```php
+use Tobento\Service\Validation\Rule\Passes;
+
+$rule = new Passes(
+    passes: true,
+    errorMessage: 'Custom error message',
+);
+```
+
+**Skip validation**
+
+You may use the skipValidation parameter in order to skip validation under certain conditions:
+
+```php
+$validation = $validator->validating(
+    value: 'foo',
+    rules: [
+        // skips validation:
+        new Passes(passes: true, skipValidation: true),
+        
+        // does not skip validation:
+        new Passes(passes: true, skipValidation: false),
+        
+        // skips validation:
+        new Passes(passes: true, skipValidation: fn (mixed $value): bool => $value === 'foo'),
+    ],
+);
 ```
 
 ### Custom Rule
