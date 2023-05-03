@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\Service\Validation;
 
 use Psr\Container\ContainerInterface;
+use Tobento\Service\Validation\Rule\AutowireAware;
 use Tobento\Service\Autowire\Autowire;
 use Tobento\Service\Autowire\AutowireException;
 use Throwable;
@@ -58,7 +59,7 @@ class AutowiringRuleFactory implements RuleFactoryInterface
 
         // new Rule()
         if ($rule instanceof RuleInterface) {
-            return $rule;
+            return $this->handleRule($rule);
         }
         
         // Rule::class
@@ -90,7 +91,7 @@ class AutowiringRuleFactory implements RuleFactoryInterface
 
             // [new Rule(), 'method']
             if ($rule[0] instanceof RuleInterface) {
-                return new CallableRule($rule[0], $rule[1] ?? 'passes');
+                return new CallableRule($this->handleRule($rule[0]), $rule[1] ?? 'passes');
             }
         } catch (Throwable $e) {
             throw new InvalidRuleException($rule, 'Could not create rule', 0, $e);
@@ -126,6 +127,21 @@ class AutowiringRuleFactory implements RuleFactoryInterface
             );
         }
         
-        return $obj;
+        return $this->handleRule($obj);
+    }
+    
+    /**
+     * Returns the created rule.
+     *
+     * @param RuleInterface $rule
+     * @return RuleInterface
+     */
+    protected function handleRule(RuleInterface $rule): RuleInterface
+    {
+        if ($rule instanceof AutowireAware) {
+            $rule->setAutowire($this->autowire);
+        }
+        
+        return $rule;
     }
 }
