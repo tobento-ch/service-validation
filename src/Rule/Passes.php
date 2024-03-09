@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace Tobento\Service\Validation\Rule;
 
+use Closure;
+use ReflectionFunction;
+use ReflectionNamedType;
+use ReflectionUnionType;
 use InvalidArgumentException;
 
 /**
@@ -38,11 +42,14 @@ class Passes extends Rule implements AutowireAware, ValidationAware, ValidatorAw
      * @param bool|callable $passes
      * @param null|bool|callable $skipValidation
      * @param null|string $errorMessage
+     * @param bool $verifyDeclaredType 
+     *    If false, the delcared type of the value closure parameter must be mixed!
      */
     public function __construct(
         protected $passes,
         protected $skipValidation = null,
         protected null|string $errorMessage = null,
+        protected bool $verifyDeclaredType = true,
     ) {
         if (!is_bool($passes) && !is_callable($passes)) {
             throw new InvalidArgumentException('passes parameter must be of type bool or callable');
@@ -123,6 +130,14 @@ class Passes extends Rule implements AutowireAware, ValidationAware, ValidatorAw
             'validation' => $this->validation(),
         ];
         
+        if (
+            $this->verifyDeclaredType
+            && $this->passes instanceof Closure
+            && ! $this->isValueMatchingDeclaredParameterType($this->passes, $value)
+        ) {
+            return false;
+        }
+        
         if ($this->autowire()) {
             $passes = $this->autowire()->call($this->passes, $params);
         } else {
@@ -148,5 +163,69 @@ class Passes extends Rule implements AutowireAware, ValidationAware, ValidatorAw
         }
         
         return static::MESSAGES;
+    }
+    
+    /**
+     * Returns the validation error messages.
+     * 
+     * @param Closure $validation
+     * @param mixed $value
+     * @return bool
+     */
+    protected function isValueMatchingDeclaredParameterType(Closure $validation, mixed $value): bool
+    {
+        $refFunction = new ReflectionFunction($validation);
+
+        foreach($refFunction->getParameters() as $parameter) {
+            if ($parameter->getName() !== 'value') {
+                continue;
+            }
+            
+            $type = $parameter->getType();
+            
+            if ($parameter->allowsNull() && is_null($value)) {
+                return true;
+            }
+            
+            if ($type instanceof ReflectionNamedType) {
+                return $this->isTypeMatching($type->getName(), $value);
+            }
+            
+            if ($type instanceof ReflectionUnionType) {
+                foreach($type->getTypes() as $namedType) {
+                    if ($this->isTypeMatching($namedType->getName(), $value)) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+    
+        return true;
+    }
+    
+    /**
+     * Returns the validation error messages.
+     * 
+     * @param Closure $validation
+     * @param mixed $value
+     * @return bool
+     */
+    protected function isTypeMatching(string $declaredType, mixed $value): bool
+    {
+        if ($declaredType === 'mixed') {
+            return true;
+        }
+        
+        $valueType = gettype($value);
+        $numberTypes = ['int', 'float'];
+        
+        return match ($valueType) {
+            'boolean' => $declaredType === 'bool',
+            'integer' => in_array($declaredType, $numberTypes),
+            'double' => in_array($declaredType, $numberTypes),
+            default => $declaredType === $valueType,
+        };
     }
 }
