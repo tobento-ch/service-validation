@@ -94,6 +94,99 @@ class PassesTest extends TestCase
         $this->assertFalse($rule->passes('value'));
     }
     
+    public function testPassesWithClosureVerifiesDeclaredType()
+    {
+        // mixed:
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes('value'));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes(555));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes(1.5));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes([]));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes(true));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes(null));
+        $this->assertTrue((new Passes(passes: fn (mixed $value) => true))->passes(new Foo()));
+        
+        // string:
+        $this->assertTrue((new Passes(passes: fn (string $value) => true))->passes('value'));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes(555));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes(1.5));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes([]));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes(null));
+        $this->assertFalse((new Passes(passes: fn (string $value) => true))->passes(new Foo()));
+        
+        // int:
+        $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes('value'));
+        $this->assertTrue((new Passes(passes: fn (int $value) => true))->passes(555));
+        $this->assertTrue((new Passes(passes: fn (int $value) => true))->passes(1.5));
+        $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes([]));
+        $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes(null));
+        $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes(new Foo()));
+        
+        // float:
+        $this->assertFalse((new Passes(passes: fn (float $value) => true))->passes('value'));
+        $this->assertTrue((new Passes(passes: fn (float $value) => true))->passes(555));
+        $this->assertTrue((new Passes(passes: fn (float $value) => true))->passes(1.5));
+        $this->assertFalse((new Passes(passes: fn (float $value) => true))->passes([]));
+        $this->assertFalse((new Passes(passes: fn (float $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (float $value) => true))->passes(null));
+        $this->assertFalse((new Passes(passes: fn (float $value) => true))->passes(new Foo()));
+        
+        // array:
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes('value'));
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes(555));
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes(1.5));
+        $this->assertTrue((new Passes(passes: fn (array $value) => true))->passes([]));
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes(null));
+        $this->assertFalse((new Passes(passes: fn (array $value) => true))->passes(new Foo()));
+        
+        // bool:
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes('value'));
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes(555));
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes(1.5));
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes([]));
+        $this->assertTrue((new Passes(passes: fn (bool $value) => true))->passes(true));
+        $this->assertTrue((new Passes(passes: fn (bool $value) => true))->passes(false));
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes(null));
+        $this->assertFalse((new Passes(passes: fn (bool $value) => true))->passes(new Foo()));
+        
+        // null:
+        $this->assertTrue((new Passes(passes: fn (null|string $value) => true))->passes('value'));
+        $this->assertFalse((new Passes(passes: fn (null|string $value) => true))->passes(555));
+        $this->assertTrue((new Passes(passes: fn (null|string $value) => true))->passes(null));
+        
+        // object:
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes('value'));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes(555));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes(1.5));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes([]));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes(false));
+        $this->assertFalse((new Passes(passes: fn (object $value) => true))->passes(null));
+        $this->assertTrue((new Passes(passes: fn (object $value) => true))->passes(new Foo()));
+        
+        // union types:
+        $this->assertTrue((new Passes(passes: fn (int|string $value) => true))->passes('value'));
+        $this->assertTrue((new Passes(passes: fn (int|string $value) => true))->passes(55));
+        $this->assertFalse((new Passes(passes: fn (int|string $value) => true))->passes(true));
+        $this->assertFalse((new Passes(passes: fn (int|string $value) => true))->passes(null));
+    }
+    
+    public function testPassesWithClosureDoesNotVerifyDeclaredTypeIfDisabled()
+    {
+        $passes = new Passes(
+            passes: fn (string $value) => true,
+            verifyDeclaredType: false,
+        );
+        
+        try {
+            $passes->passes([]);
+        } catch (\TypeError $e) {
+            $this->assertTrue(true);
+        }
+    }
+    
     public function testPassesThrowsInvalidArgumentExceptionIfNotBoolOrCallable()
     {
         $this->expectException(InvalidArgumentException::class);
