@@ -944,6 +944,26 @@ $rule = new Passes(passes: function(mixed $value, SomeService $service): bool {
 });
 ```
 
+**Ensure Declared Closure Type**
+
+By default, the declared type of a closure ```$value``` parameter will be automatically verified. If it does not match the input value type, the rule does not pass and the closure will never be executed.
+
+```php
+use Tobento\Service\Validation\Rule\Passes;
+
+$rule = new Passes(passes: fn (string|int $value): bool {
+    return true;
+});
+
+// you may deactivate it, but then you will need to declare the value type as mixed:
+$rule = new Passes(
+    passes: fn (mixed $value): bool {
+        return true;
+    },
+    verifyDeclaredType: false,
+);
+```
+
 **Custom error message**
 
 You may specify a custom error message:
