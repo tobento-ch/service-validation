@@ -196,5 +196,17 @@ class StringsTest extends TestCase
         $this->assertFalse($rule->alnum([]));
         
         $this->assertFalse($rule->alnum(new \DateTime()));
-    }    
+    }
+    
+    public function testHtmlcleanMethod()
+    {
+        $rule = new Strings();
+        
+        $this->assertTrue($rule->htmlclean('abc'));
+        $this->assertTrue($rule->htmlclean('lorem ipsum.'));
+        $this->assertTrue($rule->htmlclean('4 < 5'));
+        $this->assertFalse($rule->htmlclean('<html>'));
+        $this->assertFalse($rule->htmlclean('lorem <b>ipsum</b>'));
+        $this->assertFalse($rule->htmlclean('<p>lorem'));
+    }
 }
