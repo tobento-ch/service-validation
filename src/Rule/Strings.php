@@ -26,6 +26,7 @@ class Strings extends Rule
         'alpha' => 'The :attribute must only contain letters [a-zA-Z]',
         'alphabeticNum' => 'The :attribute must only contain letters and numbers.',
         'alnum' => 'The :attribute must only contain letters [a-zA-Z] and numbers.',
+        'htmlclean' => 'The :attribute contains forbidden HTML code.',
     ];
     
     /**
@@ -85,6 +86,26 @@ class Strings extends Rule
      */
     public function alnum(mixed $value, array $parameters = []): bool
     {
+        if (!is_string($value) && !is_numeric($value)) {
+            return false;
+        }
+        
         return ctype_alnum($value);
+    }
+    
+    /**
+     * Determine if value is html clean.
+     * 
+     * @param mixed $value The value to validate.
+     * @param array $parameters Any parameters used for the validation.
+     * @return bool
+     */
+    public function htmlclean(mixed $value, array $parameters = []): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+        
+        return strip_tags($value) == $value;
     }
 }
