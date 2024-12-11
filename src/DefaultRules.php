@@ -100,6 +100,8 @@ class DefaultRules implements RulesInterface
             
             'alnum' => [Rule\Strings::class, 'alnum'],
             
+            'htmlclean' => [Rule\Strings::class, 'htmlclean'],
+            
             'digit' => [Rule\Number::class, 'digit'],
             
             'decimal' => [Rule\Number::class, 'decimal'],
