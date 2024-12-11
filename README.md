@@ -27,6 +27,7 @@ The Validation Service provides an easy way to validate data.
             - [Available Rules](#available-rules)
             - [Adding Rules](#adding-rules)
         - [Custom Rules](#custom-rules)
+        - [Convert Rules To HTML Validation Attributes](#convert-rules-to-html-validation-attributes)
     - [Rule](#rule)
         - [Rule Interface](#rule-interface)
         - [Passes Rule](#passes-rule)
@@ -77,7 +78,7 @@ var_dump($validator instanceof ValidatorInterface);
 
 $validation = $validator->validating(
     value: 'foo',
-    rules: 'alphaStrict|minLen:2',
+    rules: 'alpha|minLen:2',
     data: [],
     key: null
 );
@@ -767,6 +768,7 @@ The following rules are available out of the box:
 | **eachWith:key_rules:value_rules** | eachWith:int/minNum;1:alpha/maxLen;3<br>['key' => 'int', 'value' => 'required\|alpha'] | true | The value must be an with the rules passing. |
 | **email** | | true | The value must be a valid email address. |
 | **float** | | true | The value must be a float. |
+| **htmlclean** | | true | The value must be html clean. |
 | **in:list** | in:blue:red | true | The value must be in the list provided. |
 | **int** | | true | The value must be a int. |
 | **json** | | true | The value must be a valid JSON string. |
@@ -849,6 +851,67 @@ class CustomDefaultRules extends DefaultRules
 }
 
 $rules = new CustomDefaultRules();
+```
+
+### Convert Rules To HTML Validation Attributes
+
+You may use the to convert rules to HTML validation attributes:
+
+```php
+use Tobento\Service\Validation\Html\HtmlAttributesFactory;
+
+$factory = new HtmlAttributesFactory();
+
+$attributes = $factory->createAttributes(
+    rules: 'required|maxLen:150',
+    inputType: 'text',
+    inputName: 'Title',
+    
+    // you may change to data attribute name for the messages:
+    // messageDataAttributeName: 'data-errors',
+    
+    // or you may disable it at all:
+    // messageDataAttributeName: null,
+);
+
+var_dump($attributes);
+// array(3) {[0]=> string(8) "required" ["maxlength"]=> string(3) "150" ["data-validation-messages"]=> array(1) { ["maxlength"]=> string(41) "The Title must at most contain 150 chars." }}
+```
+
+**Supported Rules**
+
+The following rules are supported. Any other rule will just be ignored.
+
+```alnum```, ```alpha```, ```alphabetic```, ```alphabeticNum```, ```maxLen```, ```maxNum```, ```minLen```, ```maxLen```, ```notEmpty```, ```notNull```, ```required```.
+
+**Mapping**
+
+| Validation Attribute | Supported Input Types
+| --- | --- |
+| ```pattern``` | ```text```, ```search```, ```url```, ```tel```, ```email```, ```password``` |
+| ```required``` | ```text```, ```search```, ```url```, ```tel```, ```email```, ```password```, ```date```, ```month```, ```week```, ```time```, ```datetime-local```, ```number```, ```checkbox```, ```radio```, ```select```, ```textarea``` |
+| ```minlength```, ```maxlength``` | Except: ```select``` |
+| ```min```, ```max```, ```step``` | ```date```, ```month```, ```week```, ```time```, ```datetime-local```, ```number```, ```range``` |
+
+**Render Attributes**
+
+You may install and use the [Service Tag - Attributes Class](https://github.com/tobento-ch/service-tag#attributes) to render the validation attributes on HTML form elements:
+
+```php
+use Tobento\Service\Tag\Attributes;
+use Tobento\Service\Validation\Html\HtmlAttributesFactory;
+
+$factory = new HtmlAttributesFactory();
+
+$attributes = $factory->createAttributes(
+    rules: 'required|maxLen:150',
+    inputType: 'text',
+    inputName: 'Title',
+);
+
+$attributes = new Attributes($attributes);
+var_dump((string)$attributes);
+// string(130) " required maxlength="150" data-validation-messages='{"maxlength":"The Title must at most contain 150 chars."}'" 
 ```
 
 ## Rule
