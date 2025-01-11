@@ -44,6 +44,10 @@ class AddressTest extends TestCase
         
         $this->assertTrue($rule->email('hans.peter@example-email.com'));
         
+        $this->assertFalse($rule->email('foo'));
+        
+        $this->assertFalse($rule->email('foo@'));
+        
         $this->assertFalse($rule->email(true));
         
         $this->assertFalse($rule->email(false));
