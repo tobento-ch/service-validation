@@ -171,6 +171,8 @@ class DefaultRules implements RulesInterface
             'required_with' => [Rule\Required::class, 'with'],
             
             'required_without' => [Rule\Required::class, 'without'],
+            
+            'sometimes' => Rule\Sometimes::class,
         ];
     }    
 }
