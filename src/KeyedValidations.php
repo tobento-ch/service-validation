@@ -77,6 +77,16 @@ final class KeyedValidations implements ValidationInterface
     }
     
     /**
+     * Returns true if the validation is skipped, otherwise false.
+     *
+     * @return bool
+     */
+    public function skipped(): bool
+    {
+        return false;
+    }
+    
+    /**
      * Returns the errors.
      *
      * @return MessagesInterface
@@ -148,6 +158,10 @@ final class KeyedValidations implements ValidationInterface
         
         foreach($validations as $key => $validation)
         {
+            if ($validation->skipped()) {
+                continue;
+            }
+            
             if ($validation->isValid()) {
                 $this->valid->set($key, $this->data()->get($key));
             } else {

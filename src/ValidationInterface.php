@@ -29,6 +29,13 @@ interface ValidationInterface
     public function isValid(): bool;
     
     /**
+     * Returns true if the validation is skipped, otherwise false.
+     *
+     * @return bool
+     */
+    public function skipped(): bool;
+    
+    /**
      * Returns the errors.
      *
      * @return MessagesInterface

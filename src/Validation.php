@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\Service\Validation;
 
 use Tobento\Service\Validation\Message\MessagesFactory;
+use Tobento\Service\Validation\Rule\SkipValidationsAware;
 use Tobento\Service\Validation\Rule\ValidationAware;
 use Tobento\Service\Message\MessagesInterface;
 use Tobento\Service\Message\MessagesFactoryInterface;
@@ -43,6 +44,11 @@ final class Validation implements ValidationInterface
      * @var bool
      */
     private bool $isValid = false;
+    
+    /**
+     * @var bool
+     */
+    private bool $skipped = false;
     
     /**
      * @var MessagesInterface
@@ -95,6 +101,16 @@ final class Validation implements ValidationInterface
     public function isValid(): bool
     {
         return $this->isValid;
+    }
+    
+    /**
+     * Returns true if the validation is skipped, otherwise false.
+     *
+     * @return bool
+     */
+    public function skipped(): bool
+    {
+        return $this->skipped;
     }
     
     /**
@@ -189,11 +205,6 @@ final class Validation implements ValidationInterface
      */
     private function validate(RuleInterface $rule, mixed $value, array $parameters): void
     {
-        if ($rule->skipValidation($value, 'passes')) {
-            $this->isValid = true;
-            return;
-        }
-        
         // we only pass the rule parameters to the rule.        
         $ruleParamaters = $parameters['rule_parameters'] ?? [];
         
@@ -207,7 +218,18 @@ final class Validation implements ValidationInterface
         
         if ($rule instanceof CallableRule && $rule->rule() instanceof ValidationAware) {
             $rule->rule()->setValidation($this);
-        }        
+        }
+        
+        if ($rule instanceof SkipValidationsAware && $rule->skipValidations($value, 'passes')) {
+            $this->skipped = true;
+            $this->isValid = true;
+            return;
+        }
+        
+        if ($rule->skipValidation($value, 'passes')) {
+            $this->isValid = true;
+            return;
+        }
         
         $this->isValid = $rule->passes($value, $ruleParamaters);
         

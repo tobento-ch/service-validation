@@ -43,6 +43,11 @@ final class Validations implements ValidationInterface
     private bool $isValid = false;
     
     /**
+     * @var bool
+     */
+    private bool $skipped = false;
+    
+    /**
      * @var MessagesInterface
      */
     private MessagesInterface $errors;
@@ -74,6 +79,16 @@ final class Validations implements ValidationInterface
     public function isValid(): bool
     {
         return $this->isValid;
+    }
+    
+    /**
+     * Returns true if the validation is skipped, otherwise false.
+     *
+     * @return bool
+     */
+    public function skipped(): bool
+    {
+        return $this->skipped;
     }
     
     /**
@@ -145,11 +160,16 @@ final class Validations implements ValidationInterface
     private function validate(array $validations): void
     {        
         $this->isValid = true;
+        $this->skipped = false;
         
-        foreach($validations as $validation)
-        {            
+        foreach($validations as $validation) {
             if (! $validation->isValid()) {
                 $this->isValid = false;
+            }
+            
+            if ($validation->skipped()) {
+                $this->skipped = true;
+                break;
             }
             
             $this->errors->push($validation->errors());
@@ -163,6 +183,13 @@ final class Validations implements ValidationInterface
             } else {
                 $this->invalid->set($validation->key(), $this->data()->get($validation->key()));
             }
+        }
+        
+        if ($this->skipped) {
+            $this->isValid = true;
+            $this->valid = new Collection();
+            $this->invalid = new Collection();
+            $this->errors = $this->errors->withMessage();
         }
     }
 }
