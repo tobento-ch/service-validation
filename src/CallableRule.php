@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Tobento\Service\Validation;
 
+use Tobento\Service\Validation\Rule\SkipValidationsAware;
+
 /**
  * CallableRule
  */
-class CallableRule implements RuleInterface
+class CallableRule implements RuleInterface, SkipValidationsAware
 {
     /**
      * The error messages.
@@ -46,6 +48,22 @@ class CallableRule implements RuleInterface
     public function skipValidation(mixed $value, string $method = 'passes'): bool
     {
         return $this->rule->skipValidation($value, $this->method);
+    }
+    
+    /**
+     * Skips validations depending on value and rule method.
+     * 
+     * @param mixed $value The value to validate.
+     * @param string $method
+     * @return bool Returns true if skip validations, otherwise false.
+     */
+    public function skipValidations(mixed $value, string $method = 'passes'): bool
+    {
+        if ($this->rule instanceof SkipValidationsAware) {
+            return $this->rule->skipValidations($value, $this->method);
+        }
+        
+        return false;
     }
     
     /**
