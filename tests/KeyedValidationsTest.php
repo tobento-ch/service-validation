@@ -66,6 +66,76 @@ class KeyedValidationsTest extends TestCase
         $this->assertTrue($validation->isValid());
     }
     
+    public function testSkippedMethodFalse()
+    {
+        $validation = new KeyedValidations(
+            new MessagesFactory(),
+            ['foo' => 'value', 'bar' => 'Bar'],
+            [
+                'foo' => new Validations(
+                    new MessagesFactory(),
+                    ['foo' => 'value', 'bar' => 'Bar'],
+                    new Validation(
+                        rule: new Rule\Sometimes(),
+                        value: 'value',
+                        parameters: ['rule_parameters' => ['bar']],
+                        data: ['foo' => 'value', 'bar' => 'Bar'],
+                        key: 'foo',
+                        messagesFactory: null,
+                    ),
+                    new Validation(
+                        rule: new Rule\Same(),
+                        value: 'value',
+                        parameters: ['rule_parameters' => ['bar']],
+                        data: ['foo' => 'value', 'bar' => 'Bar'],
+                        key: 'foo',
+                        messagesFactory: null,
+                    ),
+                ),                
+            ],
+        );
+        
+        $this->assertFalse($validation->skipped());
+        $this->assertFalse($validation->isValid());
+        $this->assertSame([], $validation->valid()->all());
+        $this->assertSame(['foo' => 'value'], $validation->invalid()->all());
+    }
+    
+    public function testSkippedMethodTrue()
+    {
+        $validation = new KeyedValidations(
+            new MessagesFactory(),
+            ['foo' => 'value', 'bar' => 'Bar'],
+            [
+                'baz' => new Validations(
+                    new MessagesFactory(),
+                    ['foo' => 'value', 'bar' => 'Bar'],
+                    new Validation(
+                        rule: new Rule\Sometimes(),
+                        value: 'value',
+                        parameters: ['rule_parameters' => ['bar']],
+                        data: ['foo' => 'value', 'bar' => 'Bar'],
+                        key: 'baz',
+                        messagesFactory: null,
+                    ),
+                    new Validation(
+                        rule: new Rule\Same(),
+                        value: 'value',
+                        parameters: ['rule_parameters' => ['bar']],
+                        data: ['foo' => 'value', 'bar' => 'Bar'],
+                        key: 'baz',
+                        messagesFactory: null,
+                    ),
+                ),                
+            ],
+        );
+        
+        $this->assertFalse($validation->skipped()); // never true as multiple validations
+        $this->assertTrue($validation->isValid());
+        $this->assertSame([], $validation->valid()->all());
+        $this->assertSame([], $validation->invalid()->all());
+    }
+    
     public function testErrorsMethod()
     {
         $validation = new KeyedValidations(

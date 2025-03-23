@@ -58,6 +58,64 @@ class ValidationsTest extends TestCase
         $this->assertTrue($validation->isValid());
     }
     
+    public function testSkippedMethodFalse()
+    {
+        $validation = new Validations(
+            new MessagesFactory(),
+            ['foo' => 'value', 'bar' => 'value'],
+            new Validation(
+                rule: new Rule\Sometimes(),
+                value: 'value',
+                parameters: ['rule_parameters' => ['bar']],
+                data: ['foo' => 'value', 'bar' => 'value'],
+                key: 'foo',
+                messagesFactory: null,
+            ),
+            new Validation(
+                rule: new Rule\Same(),
+                value: 'value',
+                parameters: ['rule_parameters' => ['bar']],
+                data: ['foo' => 'value', 'bar' => 'Bar'],
+                key: 'foo',
+                messagesFactory: null,
+            ),
+        );
+        
+        $this->assertFalse($validation->skipped());
+        $this->assertFalse($validation->isValid());
+        $this->assertSame(['foo' => 'value'], $validation->valid()->all());
+        $this->assertSame(['foo' => 'value'], $validation->invalid()->all());
+    }
+    
+    public function testSkippedMethodTrue()
+    {
+        $validation = new Validations(
+            new MessagesFactory(),
+            ['foo' => 'value', 'bar' => 'value'],
+            new Validation(
+                rule: new Rule\Sometimes(),
+                value: 'value',
+                parameters: ['rule_parameters' => ['bar']],
+                data: ['foo' => 'value', 'bar' => 'value'],
+                key: 'baz',
+                messagesFactory: null,
+            ),
+            new Validation(
+                rule: new Rule\Same(),
+                value: 'value',
+                parameters: ['rule_parameters' => ['bar']],
+                data: ['foo' => 'value', 'bar' => 'Bar'],
+                key: 'baz',
+                messagesFactory: null,
+            ),
+        );
+        
+        $this->assertTrue($validation->skipped());
+        $this->assertTrue($validation->isValid());
+        $this->assertSame([], $validation->valid()->all());
+        $this->assertSame([], $validation->invalid()->all());
+    }
+    
     public function testErrorsMethod()
     {
         $validation = new Validations(

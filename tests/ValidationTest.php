@@ -57,6 +57,36 @@ class ValidationTest extends TestCase
         $this->assertTrue($validation->isValid());
     }
     
+    public function testSkippedMethodFalse()
+    {
+        $validation = new Validation(
+            rule: new Rule\Sometimes(),
+            value: 'value',
+            parameters: ['rule_parameters' => ['baz']],
+            data: ['foo' => 'value'],
+            key: 'foo',
+            messagesFactory: null,
+        );
+        
+        $this->assertFalse($validation->skipped());
+        $this->assertTrue($validation->isValid());
+    }
+    
+    public function testSkippedMethodTrue()
+    {
+        $validation = new Validation(
+            rule: new Rule\Sometimes(),
+            value: 'value',
+            parameters: ['rule_parameters' => ['baz']],
+            data: ['foo' => 'value'],
+            key: 'bar',
+            messagesFactory: null,
+        );
+        
+        $this->assertTrue($validation->skipped());
+        $this->assertTrue($validation->isValid());
+    }
+    
     public function testErrorsMethod()
     {
         $validation = new Validation(
