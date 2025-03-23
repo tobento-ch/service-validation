@@ -439,6 +439,8 @@ use Tobento\Service\Collection\Collection;
 interface ValidationInterface
 {
     public function isValid(): bool;
+
+    public function skipped(): bool;
     
     public function errors(): MessagesInterface;  
     
@@ -457,6 +459,7 @@ interface ValidationInterface
 | Parameter | Description |
 | --- | --- |
 | **isValid** | Returns true if the validation is valid, otherwise false. |
+| **skipped** | Returns true if the validation is skipped, otherwise false. |
 | **errors** | Returns the error messages. See [Message Service](https://github.com/tobento-ch/service-message) for more detail. |
 | **data** | Returns the data to validate. See [Collection Service](https://github.com/tobento-ch/service-collection) for more detail. |
 | **valid** | Returns the valid data. See [Collection Service](https://github.com/tobento-ch/service-collection) for more detail. |
@@ -789,6 +792,7 @@ The following rules are available out of the box:
 | **required_without:field:field1** | required_without:firstname:lastname | false | Required when one of the fields is not present and not empty. |
 | **same:field** | same:user.password | true | The value must be the same as the field. |
 | **scalar** | | true | The value must be scalar. |
+| **sometimes** | | true | Validation will be skipped if the field is NOT present in the data being validated. |
 | **string** | | true | The value must be a string. |
 | **url** | | true | The value must be a valid URL. |
 
