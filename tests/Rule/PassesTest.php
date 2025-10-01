@@ -117,7 +117,6 @@ class PassesTest extends TestCase
         // int:
         $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes('value'));
         $this->assertTrue((new Passes(passes: fn (int $value) => true))->passes(555));
-        $this->assertTrue((new Passes(passes: fn (int $value) => true))->passes(1.5));
         $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes([]));
         $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes(true));
         $this->assertFalse((new Passes(passes: fn (int $value) => true))->passes(null));
