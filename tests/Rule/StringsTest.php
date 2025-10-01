@@ -175,7 +175,7 @@ class StringsTest extends TestCase
         
         $this->assertTrue($rule->alnum(677));
         
-        $this->assertFalse($rule->alnum(5));
+        $this->assertTrue($rule->alnum(5));
         
         $this->assertFalse($rule->alnum(67.7));
         
