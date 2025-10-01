@@ -51,7 +51,7 @@ composer require tobento/service-validation
 
 ## Requirements
 
-- PHP 8.0 or greater
+- PHP 8.4 or greater
 
 ## Highlights
 
@@ -190,7 +190,7 @@ If you add rules "lazy" with dependencies you will need to use the AutowiringRul
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -207,7 +207,7 @@ If you need to define additional rule parameters or custom error messages, wrap 
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -234,7 +234,7 @@ You may define object rules implementing the [Rule Interface](#rule-interface):
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Validation\Rule\Same;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -266,7 +266,7 @@ You may define object rules with different validation methods:
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Validation\Rule\Length;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -299,7 +299,7 @@ For each rule you can define custom parameters.
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Validation\Rule\Length;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -331,7 +331,7 @@ Sometimes you may need custom parameters for all rules.
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Validation\Rule\Length;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Product',
     ],
@@ -475,7 +475,7 @@ For translation reason, it is not recommended to write messages like "The :attri
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Message\MessagesInterface;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Pr',
         'color' => 'green',
@@ -541,7 +541,7 @@ Check out the [Message Service](https://github.com/tobento-ch/service-message) t
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Pr',
         'color' => 'green',
@@ -566,7 +566,7 @@ echo $errors->key('title')->first();
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Pr',
         'color' => 'green',
@@ -599,7 +599,7 @@ You might want to define global message parameters for all rules defined:
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Pr',
         'color' => 'green',
@@ -628,7 +628,7 @@ You might need to skip the first value of the parameters by declaring it as **:p
 ```php
 use Tobento\Service\Validation\Validator;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => '',
         'color' => 'green',
@@ -654,7 +654,7 @@ echo $errors->key('title')->first();
 use Tobento\Service\Validation\Validator;
 use Tobento\Service\Collection\Collection;
 
-$validation = (new Validator())->validate(
+$validation = new Validator()->validate(
     data: [
         'title' => 'Pr',
         'color' => 'green',
