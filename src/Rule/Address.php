@@ -46,7 +46,11 @@ class Address extends Rule
         }        
         
         $v = explode('@', $value);
-        $v[1] = idn_to_ascii($v[1] ?? '');
+        $v[1] = $v[1] ?? '';
+        
+        if ($v[1] !== '') {
+            $v[1] = idn_to_ascii($v[1] ?? '');
+        }
 
         return (bool)filter_var(implode('@', $v), FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE);
     }
