@@ -208,7 +208,7 @@ class Passes extends Rule implements AutowireAware, ValidationAware, ValidatorAw
     /**
      * Returns the validation error messages.
      * 
-     * @param Closure $validation
+     * @param string $declaredType
      * @param mixed $value
      * @return bool
      */

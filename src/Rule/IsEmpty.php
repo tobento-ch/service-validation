@@ -22,7 +22,6 @@ trait IsEmpty
      * Returns true if value is empty, otherwise false.
      * 
      * @param mixed $value The value to validate.
-     * @param string $method
      * @return bool Returns true if skip validation, otherwise false.
      */
     public function isEmpty(mixed $value): bool
