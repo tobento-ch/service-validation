@@ -90,7 +90,7 @@ class Strings extends Rule
             return false;
         }
         
-        return ctype_alnum($value);
+        return ctype_alnum((string)$value);
     }
     
     /**
