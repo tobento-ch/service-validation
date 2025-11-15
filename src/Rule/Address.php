@@ -24,6 +24,7 @@ class Address extends Rule
     public const MESSAGES = [
         'email' => 'The :attribute must be a valid email address.',
         'url' => 'The :attribute must be a valid URL.',
+        'uri' => 'The :attribute must be a valid URL.',
     ];
     
     /**
@@ -65,5 +66,25 @@ class Address extends Rule
     public function url(mixed $value, array $parameters = []): bool
     {
         return (bool)filter_var($value, FILTER_VALIDATE_URL);
-    }    
+    }
+    
+    /**
+     * Determine if the value is a valid uri.
+     * 
+     * @param mixed $value The value to validate.
+     * @param array $parameters Any parameters used for the validation.
+     * @return bool
+     */
+    public function uri(mixed $value, array $parameters = []): bool
+    {
+        if ((bool)filter_var($value, FILTER_VALIDATE_URL)) {
+            return true;
+        }
+        
+        if (!is_string($value)) {
+            return false;
+        }
+        
+        return (bool) preg_match('/^[\w\/]+[\w\-\.\/]*$/', $value);
+    }
 }
