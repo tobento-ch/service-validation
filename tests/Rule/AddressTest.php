@@ -73,6 +73,8 @@ class AddressTest extends TestCase
         
         $this->assertTrue($rule->url('https://example.com/foo-bar'));
         
+        $this->assertTrue($rule->url('https://example.com/foo/bar'));
+        
         $this->assertTrue($rule->url('https://example.com/foo?bar=[]'));
         
         $this->assertFalse($rule->url('https://exämple.com'));
@@ -94,5 +96,56 @@ class AddressTest extends TestCase
         $this->assertFalse($rule->url([]));
         
         $this->assertFalse($rule->url(new \DateTime()));
-    }    
+    }
+    
+    public function testUriMethod()
+    {
+        $rule = new Address();
+        
+        $this->assertTrue($rule->uri('http://example.com'));
+        
+        $this->assertTrue($rule->uri('https://example.com'));
+        
+        $this->assertTrue($rule->uri('https://example.com/'));
+        
+        $this->assertTrue($rule->uri('https://example.com/foo-bar'));
+        
+        $this->assertTrue($rule->uri('https://example.com/foo/bar'));
+        
+        $this->assertTrue($rule->uri('https://example.com/foo?bar=[]'));
+        
+        $this->assertFalse($rule->uri('https://exämple.com'));
+        
+        $this->assertTrue($rule->uri('example.com'));
+        
+        $this->assertTrue($rule->uri('example.com/foo'));
+        
+        $this->assertTrue($rule->uri('f'));
+        
+        $this->assertTrue($rule->uri('foo/bar'));
+        
+        $this->assertTrue($rule->uri('/foo/bar'));
+        
+        $this->assertTrue($rule->uri('ba.jpg'));
+        
+        $this->assertTrue($rule->uri('/foo/bar.html'));
+        
+        $this->assertTrue($rule->uri('foo-bar/Baz-45'));
+        
+        $this->assertTrue($rule->uri('//example.com'));
+        
+        $this->assertFalse($rule->uri('foo bar'));
+        
+        $this->assertFalse($rule->uri(true));
+        
+        $this->assertFalse($rule->uri(false));
+        
+        $this->assertFalse($rule->uri(0));
+        
+        $this->assertFalse($rule->uri(1));
+        
+        $this->assertFalse($rule->uri([]));
+        
+        $this->assertFalse($rule->uri(new \DateTime()));
+    }
 }
