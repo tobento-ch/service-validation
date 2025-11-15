@@ -794,6 +794,7 @@ The following rules are available out of the box:
 | **scalar** | | true | The value must be scalar. |
 | **sometimes** | | true | Validation will be skipped if the field is NOT present in the data being validated. |
 | **string** | | true | The value must be a string. |
+| **uri** | | true | The value must be a valid URI. |
 | **url** | | true | The value must be a valid URL. |
 
 #### Adding Rules
