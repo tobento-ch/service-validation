@@ -132,6 +132,8 @@ class DefaultRules implements RulesInterface
             
             'url' => [Rule\Address::class, 'url'],
             
+            'uri' => [Rule\Address::class, 'uri'],
+            
             'date' => [Rule\Dates::class, 'date'],
             
             'dateFormat' => [Rule\Dates::class, 'dateFormat'],
