@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace Tobento\Service\Validation;
 
-use InvalidArgumentException;
-
 /**
  * RulesParser
  */
@@ -146,18 +144,22 @@ class RulesParser implements RulesParserInterface
                     throw new RulesParserException('Invalid array rule.');
                 }
                 
+                // Per-item parameters start as a copy of the global parameters,
+                // so mutations below never leak into the next loop iteration.
+                $ruleParameters = $parameters;
+                
                 if (isset($rule[1]) && is_array($rule[1])) {
-                    $parameters['rule_parameters'] = $rule[1];
+                    $ruleParameters['rule_parameters'] = $rule[1];
                 }
                 
                 // [new CustomRule(name: value), [3], ...]
                 if ($rule[0] instanceof RuleInterface) {
                     
-                    $parameters = $this->mergeRuleParameters($rule, $parameters);
+                    $ruleParameters = $this->mergeRuleParameters($rule, $ruleParameters);
                     
                     $parsed[] = new ParsedRule(
                         [$rule[0], 'passes'],
-                        $parameters
+                        $ruleParameters
                     );
                     
                     continue;
@@ -166,9 +168,9 @@ class RulesParser implements RulesParserInterface
                 // ['minLen:3', [3], ...] or ['minLen', [3], ...]
                 if (is_string($rule[0])) {
                     
-                    $parameters = $this->mergeRuleParameters($rule, $parameters);
+                    $ruleParameters = $this->mergeRuleParameters($rule, $ruleParameters);
                     
-                    $rulesParsed = $this->parseRulesString($rule[0], $parameters);
+                    $rulesParsed = $this->parseRulesString($rule[0], $ruleParameters);
                     
                     if (isset($rulesParsed[0])) {
                         $parsed[] = $rulesParsed[0];
@@ -203,11 +205,11 @@ class RulesParser implements RulesParserInterface
                         $ruleClassParams = $rule[0][2];
                     }
                     
-                    $parameters = $this->mergeRuleParameters($rule, $parameters);
+                    $ruleParameters = $this->mergeRuleParameters($rule, $ruleParameters);
                     
                     $parsed[] = new ParsedRule(
                         [$ruleClass, $ruleClassMethod, $ruleClassParams],
-                        $parameters
+                        $ruleParameters
                     );
                     
                     continue;
