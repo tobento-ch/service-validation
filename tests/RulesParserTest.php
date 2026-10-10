@@ -516,5 +516,152 @@ class RulesParserTest extends TestCase
             ['limit_length' => 100, 'error' => 'message'],
             $parsed[0]->parameters()
         );
-    }    
+    }
+    
+    public function testArrayRuleErrorDoesNotLeakIntoFollowingStringRule()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            ['alpha', 'error' => 'message'],
+            'minLen:2',
+        ]);
+
+        $this->assertSame(
+            ['error' => 'message'],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            ['rule_parameters' => ['2']],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayRuleParametersDoNotLeakIntoFollowingStringRule()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            ['minLen', [2]],
+            'minLen:100',
+        ]);
+
+        $this->assertSame(
+            ['rule_parameters' => [2]],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            ['rule_parameters' => ['100']],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayRuleParametersDoNotLeakIntoFollowingStringRuleWithoutParameters()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            ['alpha', [3]],
+            'alpha',
+        ]);
+
+        $this->assertSame(
+            ['rule_parameters' => [3]],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            [],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayRuleParametersDoNotLeakIntoFollowingArrayRule()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            ['minLen', [2], 'error' => 'message'],
+            ['alpha'],
+        ]);
+
+        $this->assertSame(
+            ['rule_parameters' => [2], 'error' => 'message'],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            [],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayObjectRuleParametersDoNotLeakIntoFollowingRule()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            [new Rule\Same(), [5], 'error' => 'message'],
+            'alpha',
+        ]);
+
+        $this->assertSame(
+            ['rule_parameters' => [5], 'error' => 'message'],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            [],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayStringClassRuleParametersDoNotLeakIntoFollowingRule()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            [[Rule\Same::class], [5], 'error' => 'message'],
+            'alpha',
+        ]);
+
+        $this->assertSame(
+            ['rule_parameters' => [5], 'error' => 'message'],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            [],
+            $parsed[1]->parameters()
+        );
+    }
+
+    public function testArrayRuleOverridesGlobalParametersOnlyForItself()
+    {
+        $parser = new RulesParser();
+
+        $parsed = $parser->parse([
+            'error' => 'global message',
+            ['alpha', 'error' => 'message'],
+            'minLen:2',
+            ['minLen', [3]],
+        ]);
+
+        $this->assertSame(
+            ['error' => 'message'],
+            $parsed[0]->parameters()
+        );
+
+        $this->assertSame(
+            ['error' => 'global message', 'rule_parameters' => ['2']],
+            $parsed[1]->parameters()
+        );
+
+        $this->assertSame(
+            ['error' => 'global message', 'rule_parameters' => [3]],
+            $parsed[2]->parameters()
+        );
+    }
 }
